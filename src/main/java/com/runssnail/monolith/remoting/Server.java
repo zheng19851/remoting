@@ -1,5 +1,6 @@
 package com.runssnail.monolith.remoting;
 
+import java.net.InetSocketAddress;
 import java.util.Collection;
 
 /**
@@ -8,4 +9,6 @@ import java.util.Collection;
 public interface Server extends Endpoint {
 
     Collection<Channel> getChannels();
+
+    Channel getChannel(InetSocketAddress remoteAddress);
 }

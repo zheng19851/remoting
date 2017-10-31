@@ -12,6 +12,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ * length(4个字节) + header(12个字节) + body
+ *
+ * header=requestId(8个字节) + 状态(1个字节) + 请求标记(1个字节) + 预留标记(2个字节)=12个字节
+ *
+ * length(4个字节) 只表示body的长度
+ *
  * Created by zhengwei on 2017/10/30.
  */
 public class ExchangeDecoder implements Decoder {

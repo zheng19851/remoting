@@ -8,6 +8,7 @@ import com.runssnail.monolith.remoting.ChannelHandler;
 import com.runssnail.monolith.remoting.Codec;
 import com.runssnail.monolith.remoting.transport.AbstractServer;
 
+import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -90,6 +91,11 @@ public class NettyServer extends AbstractServer {
             }
         }
         return chs;
+    }
+
+    @Override
+    public Channel getChannel(InetSocketAddress remoteAddress) {
+        return channels.get(NetUtils.toAddressString(remoteAddress));
     }
 
     @Override

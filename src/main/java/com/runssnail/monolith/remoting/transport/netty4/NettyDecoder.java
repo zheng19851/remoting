@@ -15,7 +15,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 /**
- * header(16个字节) + content
  *
  * 每个channel对应一个Pipeline，因此Decoder是线程安全的
  *

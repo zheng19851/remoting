@@ -11,8 +11,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
 /**
- * header+body
- *
  *
  * Created by zhengwei on 2017/10/24.
  */

@@ -100,6 +100,30 @@ class NettyChannel extends AbstractChannel {
     }
 
     @Override
+    public boolean hasAttribute(String key) {
+        return this.attributes.containsKey(key);
+    }
+
+    @Override
+    public Object getAttribute(String key) {
+        return this.attributes.get(key);
+    }
+
+    @Override
+    public void setAttribute(String key, Object value) {
+        if (value == null) { // The null value unallowed in the ConcurrentHashMap.
+            attributes.remove(key);
+        } else {
+            attributes.put(key, value);
+        }
+    }
+
+    @Override
+    public void removeAttribute(String key) {
+        attributes.remove(key);
+    }
+
+    @Override
     public void send(Object message) throws RemotingException {
 
         boolean success = true;
@@ -122,9 +146,33 @@ class NettyChannel extends AbstractChannel {
         }
     }
 
-
     @Override
     public boolean isConnected() {
         return this.channel.isActive();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((channel == null) ? 0 : channel.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        NettyChannel other = (NettyChannel) obj;
+        if (channel == null) {
+            if (other.channel != null) return false;
+        } else if (!channel.equals(other.channel)) return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "NettyChannel [channel=" + channel + "]";
     }
 }

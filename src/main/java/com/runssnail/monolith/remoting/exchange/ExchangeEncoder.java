@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * length(4个字节) + header(12个字节) + body
  *
- * header=requestId(8个字节) + 状态(1个字节) + 请求标记(1个字节) + 预留标记(2个字节)=16个字节
+ * header=requestId(8个字节) + 状态(1个字节) + 请求标记(1个字节) + 预留标记(2个字节)=12个字节
  *
  * length(4个字节) 只表示body的长度
  *

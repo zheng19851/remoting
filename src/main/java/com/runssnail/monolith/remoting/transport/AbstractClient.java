@@ -30,6 +30,26 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
         super(url, handler);
     }
 
+    @Override
+    public boolean hasAttribute(String key) {
+        return getChannel().hasAttribute(key);
+    }
+
+    @Override
+    public Object getAttribute(String key) {
+        return getChannel().getAttribute(key);
+    }
+
+    @Override
+    public void setAttribute(String key, Object value) {
+        getChannel().setAttribute(key, value);
+    }
+
+    @Override
+    public void removeAttribute(String key) {
+        getChannel().removeAttribute(key);
+    }
+
     public InetSocketAddress getConnectAddress() {
         return new InetSocketAddress(NetUtils.filterLocalHost(getUrl().getHost()), getUrl().getPort());
     }
