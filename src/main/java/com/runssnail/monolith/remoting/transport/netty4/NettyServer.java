@@ -45,6 +45,7 @@ public class NettyServer extends AbstractServer {
 
     private Codec codec;
 
+
     public NettyServer(URL url, ChannelHandler handler, Codec codec) {
         super(url, handler);
         this.codec = codec;
@@ -71,8 +72,8 @@ public class NettyServer extends AbstractServer {
                     protected void initChannel(NioSocketChannel ch) throws Exception {
                         ch.pipeline().addLast("logging", new LoggingHandler(LogLevel.INFO))//for debug
                                 .addLast("decoder", new NettyDecoder(getUrl(), getChannelHandler(), codec.getDecoder()))
-                                .addLast("encoder", new NettyEncoder(getUrl(), getChannelHandler(), codec.getEncoder()))
-                                .addLast("handler", nettyServerHandler);
+                                .addLast("encoder", new NettyEncoder(getUrl(), getChannelHandler(), codec.getEncoder()));
+                        ch.pipeline().addLast("serverHandler", nettyServerHandler);
                     }
                 });
         // bind

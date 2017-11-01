@@ -1,5 +1,6 @@
 package com.runssnail.monolith;
 
+import com.runssnail.monolith.common.Constants;
 import com.runssnail.monolith.common.URL;
 import com.runssnail.monolith.remoting.Channel;
 import com.runssnail.monolith.remoting.RemotingException;
@@ -11,6 +12,9 @@ import com.runssnail.monolith.remoting.exchange.ExchangeHandler;
 import com.runssnail.monolith.remoting.exchange.HeartbeatPongHandler;
 import com.runssnail.monolith.remoting.transport.netty4.NettyServer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by zhengwei on 2017/10/31.
  */
@@ -18,7 +22,11 @@ public class ExchangeServerTest {
 
     public static void main(String[] args) throws Exception {
 
-        URL url = new URL("netty", "localhost", 10002);
+
+        Map<String, String> map = new HashMap<>();
+        map.put(Constants.USER_EPOLL_KEY, String.valueOf(true));
+
+        URL url = new URL("netty", "localhost", 10002, map);
 
         ExchangeCodec codec = new ExchangeCodec();
 

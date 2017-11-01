@@ -1,5 +1,6 @@
 package com.runssnail.monolith;
 
+import com.runssnail.monolith.common.Constants;
 import com.runssnail.monolith.common.URL;
 import com.runssnail.monolith.remoting.ChannelHandler;
 import com.runssnail.monolith.remoting.exchange.DefaultExchangeClient;
@@ -9,6 +10,9 @@ import com.runssnail.monolith.remoting.exchange.Ping;
 import com.runssnail.monolith.remoting.exchange.Request;
 import com.runssnail.monolith.remoting.transport.netty4.NettyClient;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by zhengwei on 2017/10/31.
  */
@@ -16,9 +20,9 @@ public class ExchangeClientTest {
 
     public static void main(String[] args) throws Exception {
 
-//        Map map = new HashMap();
-//        map.put(Constants.ALL_IDLE_TIME_KEY, 5000); // 读写空闲时间
-        URL url = new URL("netty://", "localhost", 10002);
+        Map<String, String> map = new HashMap();
+        map.put(Constants.CLIENT_ALL_IDLE_TIME_KEY, "5000"); // 读写空闲时间
+        URL url = new URL("netty://", "localhost", 10002, map);
 
         NettyClient client = new NettyClient(url, new ChannelHandler() {
             @Override

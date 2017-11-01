@@ -27,8 +27,6 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  */
 public class NettyClient extends AbstractClient {
 
-//    private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
-
 //    private final static HashedWheelTimer timer = new HashedWheelTimer();
 
     private static final NioEventLoopGroup nioEventLoopGroup = new NioEventLoopGroup(Constants.DEFAULT_IO_THREADS, new DefaultThreadFactory("NettyClientWorker", false));
@@ -86,12 +84,11 @@ public class NettyClient extends AbstractClient {
 
                 if (enableHeartbeat) {
 
-                    int allIdleTime = getUrl().getParameter(Constants.ALL_IDLE_TIME_KEY, Constants.DEFAULT_ALL_IDLE_TIME);
+                    int allIdleTime = getUrl().getPositiveParameter(Constants.CLIENT_ALL_IDLE_TIME_KEY, Constants.DEFAULT_CLIENT_ALL_IDLE_TIME);
                     ch.pipeline()
                             .addLast(new IdleStateHandler(0, 0, allIdleTime, TimeUnit.MILLISECONDS))
-                            .addLast(new HeartbeatHandler())
+                            .addLast(new HeartbeatTriggerHandler())
                             .addLast(new ReconnectHandler(NettyClient.this));
-                    ;
                 }
 
                 ch.pipeline().addLast("handler", nettyClientHandler);
@@ -140,8 +137,6 @@ public class NettyClient extends AbstractClient {
                 } else {
 
                     future.channel().pipeline().fireChannelInactive();
-
-                    System.out.println("connect error");
 
                     if (future.cause() != null) {
 
