@@ -1,8 +1,6 @@
 package com.runssnail.remoting.exchange;
 
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import java.io.Serializable;
 
 /**
@@ -13,11 +11,11 @@ public abstract class Message implements Serializable {
 
     public static final String HEARTBEAT_EVENT = null;
 
-    private Long id;
+    protected Long id;
 
-    private Object data;
+    protected Object data;
 
-    private boolean event = false;
+    protected boolean event = false;
 
     public Message() {
     }
@@ -58,10 +56,5 @@ public abstract class Message implements Serializable {
 
     public void setData(Object data) {
         this.data = data;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
     }
 }

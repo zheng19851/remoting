@@ -19,9 +19,7 @@ import java.util.zip.InflaterInputStream;
 /**
  * CodecUtils.
  *
- * @author qian.lei
  */
-
 public class Bytes {
     private static final String C64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="; //default base64.
 
