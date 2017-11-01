@@ -2,9 +2,13 @@ package com.runssnail.monolith;
 
 import com.runssnail.monolith.common.URL;
 import com.runssnail.monolith.remoting.Channel;
-import com.runssnail.monolith.remoting.ChannelHandler;
+import com.runssnail.monolith.remoting.RemotingException;
+import com.runssnail.monolith.remoting.exchange.DefaultExchangeHandler;
 import com.runssnail.monolith.remoting.exchange.DefaultExchangeServer;
+import com.runssnail.monolith.remoting.exchange.ExchangeChannel;
 import com.runssnail.monolith.remoting.exchange.ExchangeCodec;
+import com.runssnail.monolith.remoting.exchange.ExchangeHandler;
+import com.runssnail.monolith.remoting.exchange.HeartbeatPongHandler;
 import com.runssnail.monolith.remoting.transport.netty4.NettyServer;
 
 /**
@@ -18,7 +22,14 @@ public class ExchangeServerTest {
 
         ExchangeCodec codec = new ExchangeCodec();
 
-        NettyServer nettyServer = new NettyServer(url, new ChannelHandler() {
+        ExchangeHandler handler = new ExchangeHandler() {
+            @Override
+            public Object reply(ExchangeChannel channel, Object request) throws RemotingException {
+
+                System.out.println("in reply");
+                return null;
+            }
+
             @Override
             public void connected(Channel channel) {
 
@@ -32,7 +43,7 @@ public class ExchangeServerTest {
 
             @Override
             public void received(Channel channel, Object msg) {
-                System.out.println("received");
+                System.out.println("received, msg=" + msg);
             }
 
             @Override
@@ -42,10 +53,11 @@ public class ExchangeServerTest {
 
             @Override
             public void caught(Channel channel, Throwable cause) {
-                System.out.println("caught, "+ cause);
+                System.out.println("caught, " + cause);
             }
-        }, codec);
+        };
 
+        NettyServer nettyServer = new NettyServer(url, new HeartbeatPongHandler(new DefaultExchangeHandler(handler)), codec);
 
         nettyServer.init();
 

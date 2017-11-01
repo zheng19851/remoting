@@ -15,7 +15,7 @@ import java.io.IOException;
  *
  * header=requestId(8个字节) + 状态(1个字节) + 请求标记(1个字节) + 预留标记(2个字节)=12个字节
  *
- * length(4个字节) 只表示body的长度
+ * length(4个字节) 只表示header+body的长度
  *
  * Created by zhengwei on 2017/10/30.
  */
@@ -30,18 +30,21 @@ public class ExchangeEncoder implements Encoder {
 
         out.writerIndex(savedWriterIndex + HeaderConstants.LENGTH_BYTES + HeaderConstants.HEADER_LENGTH);
 
-        ChannelBufferOutputStream outputStream = new ChannelBufferOutputStream(out);
-        Hessian2Output output = new Hessian2Output(outputStream);
+        int bodyLen = 0;
+        if (message.getData() != null) {
+            ChannelBufferOutputStream outputStream = new ChannelBufferOutputStream(out);
+            Hessian2Output output = new Hessian2Output(outputStream);
 
-        output.writeObject(message.getData());
+            output.writeObject(message.getData());
 
-        output.flush();
+            output.flush();
 
-        int bodyLen = outputStream.writtenBytes();
+            bodyLen = outputStream.writtenBytes();
+        }
 
         out.writerIndex(savedWriterIndex);
 
-        int len = bodyLen;
+        int len = HeaderConstants.HEADER_LENGTH + bodyLen;
 
         byte[] header = new byte[HeaderConstants.HEADER_LENGTH];
 

@@ -31,7 +31,7 @@ public class NettyDecoder extends LengthFieldBasedFrameDecoder {
     private ChannelHandler channelHandler;
 
     public NettyDecoder(URL url, ChannelHandler channelHandler, Decoder decoder) {
-        super(16777216, 0, HeaderConstants.LENGTH_BYTES, HeaderConstants.HEADER_LENGTH, 0);
+        super(16777216, 0, HeaderConstants.LENGTH_BYTES,0, 0);
         this.url = url;
         this.channelHandler = channelHandler;
         this.decoder = decoder;

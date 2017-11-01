@@ -3,7 +3,7 @@ package com.runssnail.monolith;
 import com.runssnail.monolith.common.URL;
 import com.runssnail.monolith.remoting.ChannelHandler;
 import com.runssnail.monolith.remoting.exchange.ExchangeCodec;
-import com.runssnail.monolith.remoting.exchange.PingRequest;
+import com.runssnail.monolith.remoting.exchange.Ping;
 import com.runssnail.monolith.remoting.exchange.Request;
 import com.runssnail.monolith.remoting.transport.netty4.NettyClient;
 
@@ -50,7 +50,7 @@ public class NettyClientTest {
         request.setData("hello world");
         client.send(request);
 
-        request = new PingRequest();
+        request = new Ping();
         request.setVersion("1.0.0");
         client.send(request);
 

@@ -1,6 +1,6 @@
 package com.runssnail.monolith.remoting.transport.netty4;
 
-import com.runssnail.monolith.remoting.exchange.PingRequest;
+import com.runssnail.monolith.remoting.exchange.Ping;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler;
@@ -26,17 +26,24 @@ public class HeartbeatHandler extends ChannelDuplexHandler {
 
             switch (e.state()) {
                 case WRITER_IDLE:
-                    PingRequest pingRequest = new PingRequest();
+                    Ping pingRequest = new Ping();
                     pingRequest.setVersion("1.0.0");
                     ctx.writeAndFlush(pingRequest);
                     System.out.println("write idle, send ping to server-" + pingRequest);
                     break;
 //                case READER_IDLE:
-//                    pingRequest = new PingRequest();
+//                    pingRequest = new Ping();
 //                    pingRequest.setVersion("1.0.0");
 //                    ctx.writeAndFlush(pingRequest);
 //                    System.out.println("reader idle, send ping to server-" + pingRequest);
 //                    break;
+
+                case ALL_IDLE:
+                    pingRequest = new Ping();
+                    pingRequest.setVersion("1.0.0");
+                    ctx.writeAndFlush(pingRequest);
+                    System.out.println("write all idle, send ping to server-" + pingRequest);
+                    break;
                 default:
                     break;
             }

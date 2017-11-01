@@ -582,6 +582,11 @@ public class Constants {
 
     public static final String GENERIC_SERIALIZATION_BEAN = "bean";
 
+    public static final String ALL_IDLE_TIME_KEY = "channel.all.idle.time";
+    public static final int DEFAULT_ALL_IDLE_TIME = 5 * 1000;
+
+    public static final String USER_EPOLL_KEY = "channel.use.epoll";
+
     /*
      * private Constants(){ }
      */

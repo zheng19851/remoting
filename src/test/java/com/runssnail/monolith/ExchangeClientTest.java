@@ -5,7 +5,7 @@ import com.runssnail.monolith.remoting.ChannelHandler;
 import com.runssnail.monolith.remoting.exchange.DefaultExchangeClient;
 import com.runssnail.monolith.remoting.exchange.ExchangeClient;
 import com.runssnail.monolith.remoting.exchange.ExchangeCodec;
-import com.runssnail.monolith.remoting.exchange.PingRequest;
+import com.runssnail.monolith.remoting.exchange.Ping;
 import com.runssnail.monolith.remoting.exchange.Request;
 import com.runssnail.monolith.remoting.transport.netty4.NettyClient;
 
@@ -16,7 +16,10 @@ public class ExchangeClientTest {
 
     public static void main(String[] args) throws Exception {
 
+//        Map map = new HashMap();
+//        map.put(Constants.ALL_IDLE_TIME_KEY, 5000); // 读写空闲时间
         URL url = new URL("netty://", "localhost", 10002);
+
         NettyClient client = new NettyClient(url, new ChannelHandler() {
             @Override
             public void connected(com.runssnail.monolith.remoting.Channel channel) {
@@ -30,7 +33,7 @@ public class ExchangeClientTest {
 
             @Override
             public void received(com.runssnail.monolith.remoting.Channel channel, Object msg) {
-                System.out.println("client received");
+                System.out.println("client received, msg=" + msg);
             }
 
             @Override
@@ -54,7 +57,7 @@ public class ExchangeClientTest {
         request.setData("hello world");
         exchangeClient.send(request);
 
-        request = new PingRequest();
+        request = new Ping();
         request.setVersion("1.0.0");
         exchangeClient.send(request);
 

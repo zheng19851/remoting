@@ -2,6 +2,7 @@ package com.runssnail.monolith.remoting.transport.netty4;
 
 import com.runssnail.monolith.common.Constants;
 import com.runssnail.monolith.common.URL;
+import com.runssnail.monolith.common.util.NetUtils;
 import com.runssnail.monolith.remoting.ChannelHandler;
 import com.runssnail.monolith.remoting.Codec;
 import com.runssnail.monolith.remoting.RemotingException;
@@ -41,9 +42,16 @@ public class NettyClient extends AbstractClient {
      */
     private volatile Channel channel;
 
+    private boolean enableHeartbeat;
+
     public NettyClient(URL url, ChannelHandler handler, Codec codec) {
+        this(url, handler, codec, true);
+    }
+
+    public NettyClient(URL url, ChannelHandler handler, Codec codec, boolean enableHeartbeat) {
         super(url, handler);
         this.codec = codec;
+        this.enableHeartbeat = enableHeartbeat;
     }
 
     @Override
@@ -55,30 +63,38 @@ public class NettyClient extends AbstractClient {
         final NettyClientHandler nettyClientHandler = new NettyClientHandler(getUrl(), getChannelHandler());
         bootstrap = new Bootstrap();
         bootstrap.group(nioEventLoopGroup)
-                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.SO_REUSEADDR, true)
+                .option(ChannelOption.SO_KEEPALIVE, false)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 //.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, getTimeout())
                 .channel(NioSocketChannel.class);
 
-//        if (getTimeout() < 3000) {
-//            bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
-//        } else {
-//            bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, getTimeout());
-//        }
-
-        bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
+        int connectTimeout = getUrl().getPositiveParameter(Constants.CONNECT_TIMEOUT_KEY, Constants.DEFAULT_CONNECT_TIMEOUT);
+        if (connectTimeout < 3000) {
+            bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
+        } else {
+            bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
+        }
 
         bootstrap.handler(new ChannelInitializer() {
 
             protected void initChannel(Channel ch) throws Exception {
-                ch.pipeline()
-                        .addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS))
-                        .addLast("decoder", new NettyDecoder(getUrl(), getChannelHandler(), codec.getDecoder()))//
-                        .addLast("encoder", new NettyEncoder(getUrl(), getChannelHandler(), codec.getEncoder()))
-                        .addLast(new HeartbeatHandler())
-                        .addLast(new ReconnectHandler(NettyClient.this))
-                        .addLast("handler", nettyClientHandler);
+
+                ch.pipeline().addLast("decoder", new NettyDecoder(getUrl(), getChannelHandler(), codec.getDecoder()))
+                        .addLast("encoder", new NettyEncoder(getUrl(), getChannelHandler(), codec.getEncoder()));
+
+                if (enableHeartbeat) {
+
+                    int allIdleTime = getUrl().getParameter(Constants.ALL_IDLE_TIME_KEY, Constants.DEFAULT_ALL_IDLE_TIME);
+                    ch.pipeline()
+                            .addLast(new IdleStateHandler(0, 0, allIdleTime, TimeUnit.MILLISECONDS))
+                            .addLast(new HeartbeatHandler())
+                            .addLast(new ReconnectHandler(NettyClient.this));
+                    ;
+                }
+
+                ch.pipeline().addLast("handler", nettyClientHandler);
             }
         });
 
@@ -97,7 +113,7 @@ public class NettyClient extends AbstractClient {
         final long start = System.currentTimeMillis();
         ChannelFuture future = bootstrap.connect(getConnectAddress());
 
-        future.awaitUninterruptibly(3000, TimeUnit.MILLISECONDS);
+        future.awaitUninterruptibly(Constants.DEFAULT_CONNECT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         future.addListener(new ChannelFutureListener() {
             public void operationComplete(ChannelFuture future) throws Exception {
@@ -129,26 +145,21 @@ public class NettyClient extends AbstractClient {
 
                     if (future.cause() != null) {
 
+                        logger.error("client(url: {}) failed to connect to server {}, error message is:{} ", getUrl(), getRemoteAddress(), future.cause());
+
 //                        throw new RemotingException(NettyClient.this, "client(url: " + getUrl() + ") failed to connect to server "
 //                                + getRemoteAddress() + ", error message is:" + future.cause().getMessage(), future.cause());
 
-//                    int reconnectSeconds = 2;
-//                    logger.error("Failed to connect to server, try connect after {}s", reconnectSeconds);
-//                    future.channel().eventLoop().schedule(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            try {
-//                                doConnect();
-//                            } catch (RemotingException e) {
-//                                logger.error("doConnect error", e);
-//                            }
-//                        }
-//                    }, reconnectSeconds, TimeUnit.SECONDS);
                     } else {
 //                        throw new RemotingException(NettyClient.this, "client(url: " + getUrl() + ") failed to connect to server "
 //                                + getRemoteAddress() + " client-side timeout "
 //                                + " 3000ms (elapsed: " + (System.currentTimeMillis() - start) + "ms) from netty client "
 //                                + NetUtils.getLocalHost() + " using version " + "1.0.0");
+
+                        logger.error("client(url: " + getUrl() + ") failed to connect to server "
+                                + getRemoteAddress() + " client-side timeout "
+                                + " 3000ms (elapsed: " + (System.currentTimeMillis() - start) + "ms) from netty client "
+                                + NetUtils.getLocalHost() + " using version " + "1.0.0");
                     }
 
                 }

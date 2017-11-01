@@ -3,6 +3,7 @@ package com.runssnail.monolith.remoting.transport.netty4;
 import com.runssnail.monolith.common.Constants;
 import com.runssnail.monolith.common.URL;
 import com.runssnail.monolith.common.util.NetUtils;
+import com.runssnail.monolith.common.util.SystemUtil;
 import com.runssnail.monolith.remoting.Channel;
 import com.runssnail.monolith.remoting.ChannelHandler;
 import com.runssnail.monolith.remoting.Codec;
@@ -19,6 +20,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -57,15 +60,16 @@ public class NettyServer extends AbstractServer {
         channels = nettyServerHandler.getChannels();
 
         bootstrap.group(bossGroup, workerGroup)
-                .channel(NioServerSocketChannel.class)
+                .channel(isUseEpoll() ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
+                .option(ChannelOption.SO_REUSEADDR, true)
+                .option(ChannelOption.SO_KEEPALIVE, false)
                 .childOption(ChannelOption.TCP_NODELAY, Boolean.TRUE)
                 .childOption(ChannelOption.SO_REUSEADDR, Boolean.TRUE)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-//                .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
-                        ch.pipeline().addLast("logging",new LoggingHandler(LogLevel.INFO))//for debug
+                        ch.pipeline().addLast("logging", new LoggingHandler(LogLevel.INFO))//for debug
                                 .addLast("decoder", new NettyDecoder(getUrl(), getChannelHandler(), codec.getDecoder()))
                                 .addLast("encoder", new NettyEncoder(getUrl(), getChannelHandler(), codec.getEncoder()))
                                 .addLast("handler", nettyServerHandler);
@@ -79,6 +83,12 @@ public class NettyServer extends AbstractServer {
 
     protected int getWorkerThreads() {
         return getUrl().getPositiveParameter(Constants.IO_THREADS_KEY, Constants.DEFAULT_IO_THREADS);
+    }
+
+    protected boolean isUseEpoll() {
+        return SystemUtil.isLinuxPlatform()
+                && getUrl().getParameter(Constants.USER_EPOLL_KEY, false)
+                && Epoll.isAvailable();
     }
 
     public Collection<Channel> getChannels() {

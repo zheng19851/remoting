@@ -4,13 +4,13 @@ package com.runssnail.monolith.remoting;
  * Created by zhengwei on 2017/10/24.
  */
 public interface ChannelHandler {
-    void connected(Channel channel);
+    void connected(Channel channel) throws RemotingException;
 
-    void disconnected(Channel channel);
+    void disconnected(Channel channel) throws RemotingException;
 
-    void received(Channel channel, Object msg);
+    void received(Channel channel, Object msg) throws RemotingException;
 
-    void sent(Channel channel, Object msg);
+    void sent(Channel channel, Object msg) throws RemotingException;
 
-    void caught(Channel channel, Throwable cause);
+    void caught(Channel channel, Throwable cause) throws RemotingException;
 }

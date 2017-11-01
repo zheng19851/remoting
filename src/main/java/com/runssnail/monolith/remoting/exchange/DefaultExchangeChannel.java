@@ -157,4 +157,10 @@ public class DefaultExchangeChannel implements ExchangeChannel {
         }
         return ret;
     }
+
+    static void removeChannelIfDisconnected(Channel ch) {
+        if (ch != null && !ch.isConnected()) {
+            ch.removeAttribute(CHANNEL_KEY);
+        }
+    }
 }
