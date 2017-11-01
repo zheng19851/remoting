@@ -247,7 +247,7 @@ public class DefaultFuture implements ResponseFuture {
     private String getTimeoutMessage(boolean scan) {
         long nowTimestamp = System.currentTimeMillis();
         return (sent > 0 ? "Waiting server-side response timeout" : "Sending request timeout in client-side")
-                + (scan ? " by scan timer" : "") + ". start time: "
+                + (scan ? " by scan timer" : "") + ". create time: "
                 + (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(start))) + ", end time: "
                 + (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date())) + ","
                 + (sent > 0 ? " client elapsed: " + (sent - start)

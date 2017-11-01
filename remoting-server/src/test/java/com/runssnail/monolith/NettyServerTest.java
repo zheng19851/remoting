@@ -2,7 +2,6 @@ package com.runssnail.monolith;
 
 import com.runssnail.remoting.Channel;
 import com.runssnail.remoting.ChannelHandler;
-import com.runssnail.remoting.URL;
 import com.runssnail.remoting.exchange.ExchangeCodec;
 import com.runssnail.remoting.transport.netty.NettyServer;
 
@@ -13,11 +12,11 @@ public class NettyServerTest {
 
     public static void main(String[] args) throws Exception {
 
-        URL url = new URL("netty", "localhost", 10002);
+//        URL url = new URL("netty", "localhost", 10002);
 
         ExchangeCodec codec = new ExchangeCodec();
 
-        NettyServer nettyServer = new NettyServer(url, new ChannelHandler() {
+        NettyServer nettyServer = new NettyServer(10002, new ChannelHandler() {
             @Override
             public void connected(Channel channel) {
 

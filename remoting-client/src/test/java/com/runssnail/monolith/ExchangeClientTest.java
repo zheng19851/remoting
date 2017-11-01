@@ -1,15 +1,15 @@
 package com.runssnail.monolith;
 
 
-import com.runssnail.remoting.ChannelHandler;
+import com.runssnail.remoting.RemotingException;
 import com.runssnail.remoting.URL;
 import com.runssnail.remoting.common.Constants;
-import com.runssnail.remoting.exchange.DefaultExchangeClient;
+import com.runssnail.remoting.exchange.ExchangeChannel;
 import com.runssnail.remoting.exchange.ExchangeClient;
-import com.runssnail.remoting.exchange.ExchangeCodec;
+import com.runssnail.remoting.exchange.ExchangeHandler;
+import com.runssnail.remoting.exchange.ExchangerClients;
 import com.runssnail.remoting.exchange.Ping;
 import com.runssnail.remoting.exchange.Request;
-import com.runssnail.remoting.transport.netty.NettyClient;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,9 +23,14 @@ public class ExchangeClientTest {
 
         Map<String, String> map = new HashMap();
         map.put(Constants.CLIENT_ALL_IDLE_TIME_KEY, "5000"); // 读写空闲时间
-        URL url = new URL("netty://", "localhost", 10002, map);
+        URL url = new URL("netty://", "127.0.0.1", 10002, map);
 
-        NettyClient client = new NettyClient(url, new ChannelHandler() {
+        ExchangeHandler handler = new ExchangeHandler() {
+            @Override
+            public Object reply(ExchangeChannel channel, Object request) throws RemotingException {
+                return null;
+            }
+
             @Override
             public void connected(com.runssnail.remoting.Channel channel) {
                 System.out.println("client connected");
@@ -50,23 +55,30 @@ public class ExchangeClientTest {
             public void caught(com.runssnail.remoting.Channel channel, Throwable cause) {
                 System.out.println("client caught" + cause);
             }
-        }, new ExchangeCodec());
+        };
 
+//        NettyClient client = new NettyClient(url, handler, new ExchangeCodec());
+//
+//        client.init();
+//
+//        ExchangeClient exchangeClient = new DefaultExchangeClient(client);
+//        exchangeClient.init();
+
+//        NettyClientExchanger clientExchanger = new NettyClientExchanger(new ExchangeCodec());
+//        ExchangeClient client = clientExchanger.start(url, handler);
+
+        ExchangeClient client = ExchangerClients.nettyExchangeClient(url, handler);
         client.init();
 
-        ExchangeClient exchangeClient = new DefaultExchangeClient(client);
-        exchangeClient.init();
 
         Request request = new Request();
         request.setVersion("1.0.0");
         request.setData("hello world");
-        exchangeClient.send(request);
+        client.send(request);
 
         request = new Ping();
         request.setVersion("1.0.0");
-        exchangeClient.send(request);
-
-
+        client.send(request);
 
 
         Thread.sleep(1000L);

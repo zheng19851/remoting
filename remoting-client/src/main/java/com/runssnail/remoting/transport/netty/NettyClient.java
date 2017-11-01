@@ -42,6 +42,10 @@ public class NettyClient extends AbstractClient {
 
     private boolean enableHeartbeat;
 
+    public NettyClient(String host, int port, ChannelHandler handler, Codec codec) {
+        this(new URL("netty", host, port), handler, codec);
+    }
+
     public NettyClient(URL url, ChannelHandler handler, Codec codec) {
         this(url, handler, codec, true);
     }
@@ -148,7 +152,7 @@ public class NettyClient extends AbstractClient {
                     } else {
 //                        throw new RemotingException(NettyClient.this, "client(url: " + getUrl() + ") failed to connect to server "
 //                                + getRemoteAddress() + " client-side timeout "
-//                                + " 3000ms (elapsed: " + (System.currentTimeMillis() - start) + "ms) from netty client "
+//                                + " 3000ms (elapsed: " + (System.currentTimeMillis() - create) + "ms) from netty client "
 //                                + NetUtils.getLocalHost() + " using version " + "1.0.0");
 
                         logger.error("client(url: " + getUrl() + ") failed to connect to server "

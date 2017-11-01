@@ -4,13 +4,10 @@ import com.runssnail.remoting.Channel;
 import com.runssnail.remoting.RemotingException;
 import com.runssnail.remoting.URL;
 import com.runssnail.remoting.common.Constants;
-import com.runssnail.remoting.exchange.DefaultExchangeHandler;
-import com.runssnail.remoting.exchange.DefaultExchangeServer;
 import com.runssnail.remoting.exchange.ExchangeChannel;
-import com.runssnail.remoting.exchange.ExchangeCodec;
 import com.runssnail.remoting.exchange.ExchangeHandler;
-import com.runssnail.remoting.exchange.HeartbeatPongHandler;
-import com.runssnail.remoting.transport.netty.NettyServer;
+import com.runssnail.remoting.exchange.ExchangeServer;
+import com.runssnail.remoting.exchange.ExchangeServers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,8 +24,6 @@ public class ExchangeServerTest {
         map.put(Constants.USER_EPOLL_KEY, String.valueOf(true));
 
         URL url = new URL("netty", "localhost", 10002, map);
-
-        ExchangeCodec codec = new ExchangeCodec();
 
         ExchangeHandler handler = new ExchangeHandler() {
             @Override
@@ -65,15 +60,17 @@ public class ExchangeServerTest {
             }
         };
 
-        NettyServer nettyServer = new NettyServer(url, new HeartbeatPongHandler(new DefaultExchangeHandler(handler)), codec);
+//        NettyServer nettyServer = new NettyServer("localhost", 10002, new HeartbeatPongHandler(new DefaultExchangeHandler(handler)), codec);
+//        nettyServer.init();
+//        DefaultExchangeServer server = new DefaultExchangeServer(nettyServer);
+//        server.init();
 
-        nettyServer.init();
+//        NettyServerExchanger server = new NettyServerExchanger(codec);
+//        server.start(url, handler);
 
+        ExchangeServer exchangeServer = ExchangeServers.nettyExchangeServer(10002, handler);
+        exchangeServer.init();
 
-        DefaultExchangeServer server = new DefaultExchangeServer(nettyServer);
-
-
-        server.init();
 
         System.out.println("ok");
     }

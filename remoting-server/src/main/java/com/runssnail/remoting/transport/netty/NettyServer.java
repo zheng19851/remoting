@@ -45,6 +45,10 @@ public class NettyServer extends AbstractServer {
 
     private Codec codec;
 
+    public NettyServer(int port, ChannelHandler handler, Codec codec) {
+        super(new URL("netty", NetUtils.getLocalHost(), port), handler);
+        this.codec = codec;
+    }
 
     public NettyServer(URL url, ChannelHandler handler, Codec codec) {
         super(url, handler);
