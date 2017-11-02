@@ -13,5 +13,7 @@ public class HeaderConstants {
     public static final byte FLAG_EVENT = (byte) 0x20;
     public static final int SERIALIZATION_MASK = 0x1f;
 
+    public static final short VERSION = 1;
+
 
 }

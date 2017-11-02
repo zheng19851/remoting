@@ -1,18 +1,3 @@
-/*
- * Copyright 1999-2011 Alibaba Group.
- *  
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *  
- *      http://www.apache.org/licenses/LICENSE-2.0
- *  
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.runssnail.remoting.exchange;
 
 import com.runssnail.remoting.Channel;
@@ -33,15 +18,19 @@ public class DefaultExchangeHandler implements ChannelHandler {
 
     protected static final Logger logger = LoggerFactory.getLogger(DefaultExchangeHandler.class);
 
-//    public static String KEY_READ_TIMESTAMP = HeartbeatPongHandler.KEY_READ_TIMESTAMP;
-//    public static String KEY_WRITE_TIMESTAMP = HeartbeatPongHandler.KEY_WRITE_TIMESTAMP;
+    private final ChannelHandler handler;
 
-    private final ExchangeHandler handler;
+    private RequestHandlerResolver requestHandlerResolver;
 
-    public DefaultExchangeHandler(ExchangeHandler handler) {
+    public DefaultExchangeHandler(ChannelHandler handler) {
+        this(handler, null);
+    }
+
+    public DefaultExchangeHandler(ChannelHandler handler, RequestHandlerResolver requestHandlerResolver) {
         if (handler == null) {
             throw new IllegalArgumentException("handler == null");
         }
+        this.requestHandlerResolver = requestHandlerResolver;
         this.handler = handler;
     }
 
@@ -84,10 +73,11 @@ public class DefaultExchangeHandler implements ChannelHandler {
             return res;
         }
         // find handler by message class.
-        Object msg = req.getData();
+        // Object msg = req.getData();
         try {
             // handle data.
-            Object result = handler.reply(channel, msg);
+            RequestHandler handler = this.requestHandlerResolver.resolve(req);
+            Object result = handler.handle(channel, req.getData());
             res.setStatus(Response.OK);
             res.setData(result);
         } catch (Throwable e) {

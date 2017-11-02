@@ -8,8 +8,11 @@ import com.runssnail.remoting.exchange.ExchangeChannel;
 import com.runssnail.remoting.exchange.ExchangeClient;
 import com.runssnail.remoting.exchange.ExchangeHandler;
 import com.runssnail.remoting.exchange.ExchangerClients;
+import com.runssnail.remoting.exchange.HeaderConstants;
 import com.runssnail.remoting.exchange.Ping;
 import com.runssnail.remoting.exchange.Request;
+import com.runssnail.remoting.exchange.RequestHandler;
+import com.runssnail.remoting.exchange.RequestHandlerResolver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,17 +70,22 @@ public class ExchangeClientTest {
 //        NettyClientExchanger clientExchanger = new NettyClientExchanger(new ExchangeCodec());
 //        ExchangeClient client = clientExchanger.start(url, handler);
 
-        ExchangeClient client = ExchangerClients.nettyExchangeClient(url, handler);
+        ExchangeClient client = ExchangerClients.nettyExchangeClient(url, handler, new RequestHandlerResolver() {
+            @Override
+            public <T> RequestHandler<T> resolve(Request request) {
+                return null;
+            }
+        });
         client.init();
 
 
         Request request = new Request();
-        request.setVersion("1.0.0");
+        request.setVersion(HeaderConstants.VERSION);
         request.setData("hello world");
         client.send(request);
 
         request = new Ping();
-        request.setVersion("1.0.0");
+        request.setVersion(HeaderConstants.VERSION);
         client.send(request);
 
 

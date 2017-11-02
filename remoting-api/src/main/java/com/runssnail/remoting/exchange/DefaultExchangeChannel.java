@@ -99,7 +99,7 @@ public class DefaultExchangeChannel implements ExchangeChannel {
     @Override
     public ResponseFuture request(Object request, int timeout) throws RemotingException {
         Request req = new Request();
-        req.setVersion("1.0.0");
+        req.setVersion(HeaderConstants.VERSION);
         req.setTwoWay(true);
         req.setData(request);
         DefaultFuture future = new DefaultFuture(channel, req, timeout);

@@ -11,10 +11,24 @@ public abstract class Message implements Serializable {
 
     public static final String HEARTBEAT_EVENT = null;
 
-    protected Long id;
+    /**
+     * 数据ID
+     */
+    protected long id;
 
+    /**
+     * 版本号
+     */
+    protected short version;
+
+    /**
+     * 数据
+     */
     protected Object data;
 
+    /**
+     * 是否时间
+     */
     protected boolean event = false;
 
     public Message() {
@@ -42,11 +56,11 @@ public abstract class Message implements Serializable {
         return isEvent() && HEARTBEAT_EVENT == this.data;
     }
 
-    public Long getId() {
+    public long getId() {
         return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -56,5 +70,13 @@ public abstract class Message implements Serializable {
 
     public void setData(Object data) {
         this.data = data;
+    }
+
+    public short getVersion() {
+        return version;
+    }
+
+    public void setVersion(short version) {
+        this.version = version;
     }
 }

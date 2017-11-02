@@ -48,6 +48,7 @@ public class HeartbeatPongHandler extends AbstractChannelHandlerDelegate {
             return;
         }
         if (isHeartbeatResponse(message)) {
+
             if (logger.isDebugEnabled()) {
                 logger.debug(
                         new StringBuilder(32)
@@ -55,6 +56,7 @@ public class HeartbeatPongHandler extends AbstractChannelHandlerDelegate {
                                 .append(Thread.currentThread().getName())
                                 .toString());
             }
+            // System.out.println("Receive heartbeat response");
             return;
         }
         handler.received(channel, message);

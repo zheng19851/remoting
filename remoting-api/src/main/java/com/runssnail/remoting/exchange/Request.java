@@ -18,8 +18,6 @@ public class Request extends Message {
 
     public static final String READONLY_EVENT = "R";
 
-    private String version;
-
     private boolean twoWay = true;
 
     private boolean broken = false;
@@ -47,14 +45,6 @@ public class Request extends Message {
                     StringUtils.toString(e) + ">";
         }
         return dataStr;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 
     @Override

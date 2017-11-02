@@ -1,5 +1,7 @@
 package com.runssnail.remoting.exchange;
 
+import com.runssnail.remoting.ChannelHandler;
+import com.runssnail.remoting.ChannelHandlerAdapter;
 import com.runssnail.remoting.Client;
 import com.runssnail.remoting.URL;
 import com.runssnail.remoting.transport.netty.NettyClientTransporter;
@@ -10,26 +12,26 @@ import com.runssnail.remoting.transport.netty.NettyClientTransporter;
 public abstract class ExchangerClients {
 
 
-    public static ExchangeClient nettyExchangeClient(String host, int port) throws Exception {
+    public static ExchangeClient nettyExchangeClient(String host, int port, RequestHandlerResolver requestHandlerResolver) throws Exception {
 
-        return nettyExchangeClient(host, port, new ExchangeHandlerAdapter());
+        return nettyExchangeClient(host, port, new ChannelHandlerAdapter(), requestHandlerResolver);
     }
 
-    public static ExchangeClient nettyExchangeClient(String host, int port, ExchangeHandler handler) throws Exception {
+    public static ExchangeClient nettyExchangeClient(String host, int port, ChannelHandler handler, RequestHandlerResolver requestHandlerResolver) throws Exception {
 
         URL url = new URL("netty", host, port);
-        return nettyExchangeClient(url, handler);
+        return nettyExchangeClient(url, handler, requestHandlerResolver);
     }
 
-    public static ExchangeClient nettyExchangeClient(URL url) throws Exception {
+    public static ExchangeClient nettyExchangeClient(URL url, RequestHandlerResolver requestHandlerResolver) throws Exception {
 
-        return nettyExchangeClient(url, new ExchangeHandlerAdapter());
+        return nettyExchangeClient(url, new ChannelHandlerAdapter(), requestHandlerResolver);
     }
 
 
-    public static ExchangeClient nettyExchangeClient(URL url, ExchangeHandler handler) throws Exception {
+    public static ExchangeClient nettyExchangeClient(URL url, ChannelHandler handler, RequestHandlerResolver requestHandlerResolver) throws Exception {
 
-        Client client = new NettyClientTransporter(new ExchangeCodec()).create(url, new HeartbeatPongHandler(new DefaultExchangeHandler(handler)));
+        Client client = new NettyClientTransporter(new ExchangeCodec()).create(url, new HeartbeatPongHandler(new DefaultExchangeHandler(handler, requestHandlerResolver)));
 
         ExchangeClient exchangeClient = new DefaultExchangeClient(client);
 

@@ -1,6 +1,7 @@
 package com.runssnail.remoting.transport.netty;
 
 
+import com.runssnail.remoting.exchange.HeaderConstants;
 import com.runssnail.remoting.exchange.Ping;
 
 import io.netty.channel.Channel;
@@ -54,7 +55,7 @@ public class HeartbeatTriggerHandler extends ChannelDuplexHandler {
 
     private void sendPing(Channel channel) {
         Ping ping = new Ping();
-        ping.setVersion("1.0.0");
+        ping.setVersion(HeaderConstants.VERSION);
         channel.writeAndFlush(ping);
     }
 

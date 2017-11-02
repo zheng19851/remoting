@@ -8,6 +8,9 @@ import com.runssnail.remoting.exchange.ExchangeChannel;
 import com.runssnail.remoting.exchange.ExchangeHandler;
 import com.runssnail.remoting.exchange.ExchangeServer;
 import com.runssnail.remoting.exchange.ExchangeServers;
+import com.runssnail.remoting.exchange.Request;
+import com.runssnail.remoting.exchange.RequestHandler;
+import com.runssnail.remoting.exchange.RequestHandlerResolver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +71,20 @@ public class ExchangeServerTest {
 //        NettyServerExchanger server = new NettyServerExchanger(codec);
 //        server.start(url, handler);
 
-        ExchangeServer exchangeServer = ExchangeServers.nettyExchangeServer(10002, handler);
+        final RequestHandler requestHandler = new RequestHandler() {
+            @Override
+            public Object handle(ExchangeChannel channel, Object o) throws Exception {
+
+                return "hello boy";
+            }
+        };
+
+        ExchangeServer exchangeServer = ExchangeServers.nettyExchangeServer(10002, handler, new RequestHandlerResolver() {
+            @Override
+            public <T> RequestHandler<T> resolve(Request request) {
+                return requestHandler;
+            }
+        });
         exchangeServer.init();
 
 

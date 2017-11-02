@@ -27,10 +27,11 @@ public class ExchangeEncoder implements Encoder {
 
         int savedWriterIndex = out.writerIndex();
 
-        out.writerIndex(savedWriterIndex + HeaderConstants.LENGTH_BYTES + HeaderConstants.HEADER_LENGTH);
-
         int bodyLen = 0;
         if (message.getData() != null) {
+
+            out.writerIndex(savedWriterIndex + HeaderConstants.LENGTH_BYTES + HeaderConstants.HEADER_LENGTH);
+
             ChannelBufferOutputStream outputStream = new ChannelBufferOutputStream(out);
             Hessian2Output output = new Hessian2Output(outputStream);
 
@@ -39,9 +40,8 @@ public class ExchangeEncoder implements Encoder {
             output.flush();
 
             bodyLen = outputStream.writtenBytes();
+            out.writerIndex(savedWriterIndex);
         }
-
-        out.writerIndex(savedWriterIndex);
 
         int len = HeaderConstants.HEADER_LENGTH + bodyLen;
 
