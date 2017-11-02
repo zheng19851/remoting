@@ -5,17 +5,13 @@ import com.runssnail.remoting.Channel;
 import com.runssnail.remoting.Decoder;
 import com.runssnail.remoting.buffer.ChannelBuffer;
 import com.runssnail.remoting.buffer.ChannelBufferInputStream;
-import com.runssnail.remoting.common.io.Bytes;
+import com.runssnail.remoting.buffer.ChannelBufferUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * length(4个字节) + header(12个字节) + body
- *
- * header=requestId(8个字节) + 状态(1个字节) + 请求标记(1个字节) + 预留标记(2个字节)=12个字节
- *
- * length(4个字节) 只表示header+body的长度
+ * @see ExchangeEncoder
  *
  * Created by zhengwei on 2017/10/30.
  */
@@ -24,18 +20,29 @@ public class ExchangeDecoder implements Decoder {
     @Override
     public Object decode(Channel channel, ChannelBuffer buf) throws IOException {
 
-        byte[] lengthBytes = new byte[HeaderConstants.LENGTH_BYTES];
+        int length = ChannelBufferUtils.readInt(buf);
 
-        byte[] header = new byte[HeaderConstants.HEADER_LENGTH];
+        int headerLen = ChannelBufferUtils.readInt(buf);
 
-        buf.readBytes(lengthBytes);
+        short version = ChannelBufferUtils.readShort(buf);
 
-        buf.readBytes(header);// 读取header
+        int id = ChannelBufferUtils.readInt(buf);
+
+        byte status = buf.readByte();
+
+        byte flag = buf.readByte();
+
+        int remarkLen = ChannelBufferUtils.readInt(buf);
+
+        String remark = null;
+        if (remarkLen > 0) {
+            byte[] remarkBytes = new byte[remarkLen];
+            buf.readBytes(remarkBytes);
+            remark = new String(remarkBytes, HeaderConstants.CHARSET_UTF8);
+        }
+
 
         Message message;
-
-        byte flag = header[11];
-
         if (isRequest(flag)) {
             Request req = new Request();
 
@@ -44,18 +51,21 @@ public class ExchangeDecoder implements Decoder {
             }
             message = req;
         } else {
-            message = new Response();
+            Response response = new Response();
+            response.setStatus(status);
+
+            message = response;
         }
 
         if (isEvent(flag)) {
             message.setEvent(true);
         }
 
-        Long requestId = Bytes.bytes2long(header); //header.getLong(4);
-        message.setId(requestId);
+        message.setId(id);
+        message.setVersion(version);
+        message.setRemark(remark);
 
-        int len = Bytes.bytes2int(lengthBytes);
-        int bodyLen = len - HeaderConstants.HEADER_LENGTH;
+        int bodyLen = length - headerLen;
         if (bodyLen > 0) {
             ChannelBuffer body = buf.readBytes(bodyLen);
             InputStream is = new ChannelBufferInputStream(body);
@@ -64,7 +74,6 @@ public class ExchangeDecoder implements Decoder {
 
             message.setData(msg);
         }
-
 
         return message;
 

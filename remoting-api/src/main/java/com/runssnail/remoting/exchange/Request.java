@@ -4,7 +4,7 @@ package com.runssnail.remoting.exchange;
 
 import com.runssnail.remoting.common.util.StringUtils;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Request.
@@ -14,7 +14,7 @@ public class Request extends Message {
 
     private static final long serialVersionUID = -7909342436430616833L;
 
-    private static final AtomicLong REQUEST_ID = new AtomicLong(0);
+    private static final AtomicInteger REQUEST_ID = new AtomicInteger(0);
 
     public static final String READONLY_EVENT = "R";
 
@@ -26,11 +26,11 @@ public class Request extends Message {
         super(newId());
     }
 
-    public Request(long id) {
+    public Request(int id) {
          super(id);
     }
 
-    private static long newId() {
+    private static int newId() {
         // getAndIncrement()增长到MAX_VALUE时，再增长会变为MIN_VALUE，负数也可以做为ID
         return REQUEST_ID.getAndIncrement();
     }
@@ -61,7 +61,7 @@ public class Request extends Message {
     }
 
     @Override
-    public byte getState() {
+    public byte getStatus() {
         return 0;
     }
 
@@ -73,16 +73,16 @@ public class Request extends Message {
         this.broken = mBroken;
     }
 
-
     @Override
     public String toString() {
         return "Request{" +
-                "id=" + id +
+                "version=" + version +
+                ", id=" + id +
+                ", twoWay=" + twoWay +
+                ", remark='" + remark + '\'' +
+                ", broken=" + broken +
                 ", data=" + data +
                 ", event=" + event +
-                ", version='" + version + '\'' +
-                ", twoWay=" + twoWay +
-                ", broken=" + broken +
                 '}';
     }
 }

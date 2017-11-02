@@ -26,9 +26,9 @@ public class DefaultFuture implements ResponseFuture {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultFuture.class);
 
-    private static final Map<Long, Channel> CHANNELS = new ConcurrentHashMap<Long, Channel>();
+    private static final Map<Integer, Channel> CHANNELS = new ConcurrentHashMap<Integer, Channel>();
 
-    private static final Map<Long, DefaultFuture> FUTURES = new ConcurrentHashMap<Long, DefaultFuture>();
+    private static final Map<Integer, DefaultFuture> FUTURES = new ConcurrentHashMap<Integer, DefaultFuture>();
 
     static {
         Thread th = new Thread(new RemotingInvocationTimeoutScan(), "DubboResponseTimeoutScanTimer");
@@ -37,7 +37,7 @@ public class DefaultFuture implements ResponseFuture {
     }
 
     // invoke id.
-    private final long id;
+    private final int id;
     private final Channel channel;
     private final Request request;
     private final int timeout;
@@ -201,7 +201,7 @@ public class DefaultFuture implements ResponseFuture {
         throw new RemotingException(channel, res.getErrorMsg());
     }
 
-    private long getId() {
+    private int getId() {
         return id;
     }
 

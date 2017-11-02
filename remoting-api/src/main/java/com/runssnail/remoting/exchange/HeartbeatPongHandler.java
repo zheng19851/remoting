@@ -56,7 +56,7 @@ public class HeartbeatPongHandler extends AbstractChannelHandlerDelegate {
                                 .append(Thread.currentThread().getName())
                                 .toString());
             }
-            // System.out.println("Receive heartbeat response");
+            System.out.println("Receive heartbeat response");
             return;
         }
         handler.received(channel, message);

@@ -6,7 +6,7 @@ package com.runssnail.remoting.exchange;
 public class Pong extends Response {
     private static final long serialVersionUID = 4147857403463844385L;
 
-    public Pong(long id, short version) {
+    public Pong(int id, short version) {
         super(id, version);
         this.setData(Message.HEARTBEAT_EVENT);
         this.setEvent(true);

@@ -142,6 +142,8 @@ public class NettyClient extends AbstractClient {
 
                     future.channel().pipeline().fireChannelInactive();
 
+                    System.out.println("connect error");
+
                     if (future.cause() != null) {
 
                         logger.error("client(url: {}) failed to connect to server {}, error message is:{} ", getUrl(), getRemoteAddress(), future.cause());

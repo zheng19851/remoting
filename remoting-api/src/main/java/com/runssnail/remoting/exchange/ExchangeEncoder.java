@@ -8,13 +8,15 @@ import com.runssnail.remoting.buffer.ChannelBufferOutputStream;
 import com.runssnail.remoting.common.io.Bytes;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
- * length(4个字节) + header(12个字节) + body
+ * length(4个字节) + header + body
  *
- * header=requestId(8个字节) + 状态(1个字节) + 请求标记(1个字节) + 预留标记(2个字节)=12个字节
+ * length(4个字节) 表示header+body的字节数
  *
- * length(4个字节) 只表示header+body的长度
+ * header=header长度(4个字节) + version(2个字节) + requestId(4个字节) + 状态(1个字节) + 请求标记(1个字节) + remark长度(4个字节) + remark数据
+ *
  *
  * Created by zhengwei on 2017/10/30.
  */
@@ -27,10 +29,12 @@ public class ExchangeEncoder implements Encoder {
 
         int savedWriterIndex = out.writerIndex();
 
+        byte[] header = encodeHeader(message);
+
         int bodyLen = 0;
         if (message.getData() != null) {
 
-            out.writerIndex(savedWriterIndex + HeaderConstants.LENGTH_BYTES + HeaderConstants.HEADER_LENGTH);
+            out.writerIndex(savedWriterIndex + HeaderConstants.LENGTH_BYTES + header.length);
 
             ChannelBufferOutputStream outputStream = new ChannelBufferOutputStream(out);
             Hessian2Output output = new Hessian2Output(outputStream);
@@ -43,19 +47,36 @@ public class ExchangeEncoder implements Encoder {
             out.writerIndex(savedWriterIndex);
         }
 
-        int len = HeaderConstants.HEADER_LENGTH + bodyLen;
 
-        byte[] header = new byte[HeaderConstants.HEADER_LENGTH];
+        int len = header.length + bodyLen;
 
-        //Bytes.int2bytes(len, header, 0);
-        Bytes.long2bytes(message.getId(), header);
+        byte[] lenBytes = new byte[HeaderConstants.LENGTH_BYTES];
+        Bytes.int2bytes(len, lenBytes);
 
-//        out.writeInt(len);
-//        out.writeLong(message.getId());
+        out.writeBytes(lenBytes);
+        out.writeBytes(header);
 
-//        out.writeByte(message.getState());
+        out.writerIndex(savedWriterIndex + HeaderConstants.LENGTH_BYTES + len);
 
-        header[10] = message.getState();
+    }
+
+    private byte[] encodeHeader(Message message) {
+
+        byte[] remarkBytes = null;
+        int remarkLen = 0;
+        if (message.getRemark() != null && message.getRemark().length() > 0) {
+            remarkBytes = message.getRemark().getBytes(HeaderConstants.CHARSET_UTF8);
+            remarkLen = remarkBytes.length;
+        }
+
+        int headerLen = 4 + 2 + 4 + 1 + 1 + 4 + remarkLen;
+
+        ByteBuffer headerBuf = ByteBuffer.allocate(headerLen);
+
+        headerBuf.putInt(headerLen);
+        headerBuf.putShort(message.getVersion());
+        headerBuf.putInt(message.getId());
+        headerBuf.put(message.getStatus());
 
         byte flag = 0;
         if (message.isRequest()) {
@@ -66,21 +87,14 @@ public class ExchangeEncoder implements Encoder {
         if (message.isEvent()) flag |= HeaderConstants.FLAG_EVENT;
         if (message.isTwoWay()) flag |= HeaderConstants.FLAG_TWOWAY;
 
-//        out.writeByte(flag);
-
-        header[11] = flag;
-
-        byte[] lenBytes = new byte[HeaderConstants.LENGTH_BYTES];
-        Bytes.int2bytes(len, lenBytes);
-
-        out.writeBytes(lenBytes);
-        out.writeBytes(header);
-
-        for (int i = HeaderConstants.HEADER_LENGTH - 2; i < HeaderConstants.HEADER_LENGTH; i++) {
-            header[i] = 0;
+        headerBuf.put(flag);
+        headerBuf.putInt(remarkLen);
+        if (remarkLen > 0) {
+            headerBuf.put(remarkBytes);
         }
 
-        out.writerIndex(savedWriterIndex + HeaderConstants.LENGTH_BYTES + HeaderConstants.HEADER_LENGTH + bodyLen);
+        byte[] header = headerBuf.array();
 
+        return header;
     }
 }

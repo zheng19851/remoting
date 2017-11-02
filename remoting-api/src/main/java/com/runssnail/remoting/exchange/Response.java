@@ -68,11 +68,11 @@ public class Response extends Message {
     public Response() {
     }
 
-    public Response(long id) {
+    public Response(int id) {
         super(id);
     }
 
-    public Response(long id, short version) {
+    public Response(int id, short version) {
         super(id);
         this.version = version;
     }
@@ -95,11 +95,6 @@ public class Response extends Message {
         return false;
     }
 
-    @Override
-    public byte getState() {
-        return this.status;
-    }
-
     public String getErrorMsg() {
         return errorMsg;
     }
@@ -111,10 +106,11 @@ public class Response extends Message {
     @Override
     public String toString() {
         return "Response{" +
-                "id=" + id +
+                "version=" + version +
+                ", id=" + id +
+                ", remark='" + remark + '\'' +
                 ", data=" + data +
                 ", event=" + event +
-                ", version='" + version + '\'' +
                 ", status=" + status +
                 ", errorMsg='" + errorMsg + '\'' +
                 '}';
