@@ -587,8 +587,10 @@ public class Constants {
     public static final String SERVER_ALL_IDLE_TIME_KEY = "server.channel.all.idle.time";
     public static final int DEFAULT_SERVER_ALL_IDLE_TIME = DEFAULT_CLIENT_ALL_IDLE_TIME * 2;
 
+    public static final String MAX_RECONNECT_TIMES_KEY = "maxReconnectTimes";
+    public static final int DEFAULT_MAX_RECONNECT_TIMES = 100;
 
-    public static final String USER_EPOLL_KEY = "use.epoll";
+    public static final String USER_EPOLL_KEY = "useEpoll";
 
     /*
      * private Constants(){ }

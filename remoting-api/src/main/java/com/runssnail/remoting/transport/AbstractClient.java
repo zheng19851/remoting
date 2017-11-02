@@ -73,8 +73,16 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
 
     @Override
     public void reconnect() throws RemotingException {
+
+        if (logger.isInfoEnabled()) {
+            logger.info("reconnect start, remoteAddress={}", this.getRemoteAddress());
+        }
         disconnect();
         connect();
+
+        if (logger.isInfoEnabled()) {
+            logger.info("reconnect end, remoteAddress={}", this.getRemoteAddress());
+        }
     }
 
     protected void disconnect() throws RemotingException {

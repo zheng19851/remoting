@@ -1,6 +1,10 @@
 package com.runssnail.remoting.transport.netty;
 
 import com.runssnail.remoting.Client;
+import com.runssnail.remoting.common.Constants;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
@@ -14,7 +18,11 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public class ReconnectHandler extends ChannelDuplexHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(ReconnectHandler.class);
+
     private Client client;
+
+    private volatile int reconnectTimes = 0;
 
 //    private HashedWheelTimer timer;
 
@@ -24,14 +32,25 @@ public class ReconnectHandler extends ChannelDuplexHandler {
     }
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        this.reconnectTimes = 0;
+        super.channelActive(ctx);
+    }
+
+    @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
-        System.out.println("in channelInactive");
+//        System.out.println("in channelInactive");
 
-        super.channelInactive(ctx);
+        int maxReconnectTimes = this.client.getUrl().getPositiveParameter(Constants.MAX_RECONNECT_TIMES_KEY, Constants.DEFAULT_MAX_RECONNECT_TIMES);
+        if (this.reconnectTimes < maxReconnectTimes) {
+            reconnectTimes++;
+            long delay = Constants.DEFAULT_RECONNECT_PERIOD * reconnectTimes;
 
-        ctx.channel().eventLoop().schedule(new ReconnectTask(), 2000L, TimeUnit.MILLISECONDS);
+            ctx.channel().eventLoop().schedule(new ReconnectTask(), delay, TimeUnit.MILLISECONDS);
+        }
 
+        ctx.fireChannelInactive();
     }
 
     private class ReconnectTask implements Runnable {
@@ -39,10 +58,10 @@ public class ReconnectHandler extends ChannelDuplexHandler {
         @Override
         public void run() {
             try {
-                System.out.println("in timer run");
+//                System.out.println("in timer run");
                 client.reconnect();
             } catch (Exception e) {
-                System.out.println("reconnect error, " + e);
+                logger.error("reconnect error", e);
             }
         }
     }
