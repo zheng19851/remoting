@@ -41,6 +41,8 @@ public class Message implements Serializable {
      */
     protected Object data;
 
+    protected String errorMsg;
+
 
     public Message() {
     }
@@ -101,6 +103,14 @@ public class Message implements Serializable {
         this.flag = flag;
     }
 
+    public String getErrorMsg() {
+        return errorMsg;
+    }
+
+    public void setErrorMsg(String errorMsg) {
+        this.errorMsg = errorMsg;
+    }
+
     public boolean isTwoWay() {
         return (flag & HeaderConstants.FLAG_TWOWAY) != 0;
     }
@@ -141,5 +151,11 @@ public class Message implements Serializable {
         }
     }
 
+    public void setSerializationId(byte serializationId) {
+        this.flag |= serializationId;
+    }
 
+    public byte getSerializationId() {
+        return (byte) (this.flag & HeaderConstants.SERIALIZATION_MASK);
+    }
 }

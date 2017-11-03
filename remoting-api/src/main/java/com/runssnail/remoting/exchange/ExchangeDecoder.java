@@ -1,11 +1,14 @@
 package com.runssnail.remoting.exchange;
 
-import com.caucho.hessian.io.Hessian2Input;
 import com.runssnail.remoting.Channel;
 import com.runssnail.remoting.Decoder;
 import com.runssnail.remoting.buffer.ChannelBuffer;
 import com.runssnail.remoting.buffer.ChannelBufferInputStream;
 import com.runssnail.remoting.buffer.ChannelBufferUtils;
+import com.runssnail.remoting.common.serialize.ObjectInput;
+import com.runssnail.remoting.common.serialize.Serialization;
+import com.runssnail.remoting.common.serialize.SerializationFactory;
+import com.runssnail.remoting.common.util.StringUtils;
 import com.runssnail.remoting.exchange.util.CodecUtils;
 
 import java.io.IOException;
@@ -18,12 +21,13 @@ import java.io.InputStream;
  */
 public class ExchangeDecoder implements Decoder {
 
+    public ExchangeDecoder() {
+    }
+
     @Override
     public Object decode(Channel channel, ChannelBuffer buf) throws IOException {
 
         int length = ChannelBufferUtils.readInt(buf);
-
-//        int headerLen = ChannelBufferUtils.readInt(buf);
 
         short version = ChannelBufferUtils.readShort(buf);
 
@@ -57,12 +61,19 @@ public class ExchangeDecoder implements Decoder {
         int headerLen = CodecUtils.calcHeaderLen(remarkLen);
         int bodyLen = length - headerLen;
         if (bodyLen > 0) {
-            ChannelBuffer body = buf.readBytes(bodyLen);
-            InputStream is = new ChannelBufferInputStream(body);
-            Hessian2Input hessian2Input = new Hessian2Input(is);
-            Object msg = hessian2Input.readObject();
+            try {
+                ChannelBuffer body = buf.readBytes(bodyLen);
+                InputStream is = new ChannelBufferInputStream(body);
 
-            message.setData(msg);
+                Serialization serialization = SerializationFactory.getSerialization(message.getSerializationId());
+
+                ObjectInput objectInput = serialization.deserialize(is);
+                Object msg = objectInput.readObject();
+                message.setData(msg);
+            } catch (Throwable e) {
+                message.setStatus(Response.CLIENT_ERROR);
+                message.setErrorMsg(StringUtils.toString(e));
+            }
         }
 
         return message;

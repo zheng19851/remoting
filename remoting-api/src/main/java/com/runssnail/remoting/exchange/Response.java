@@ -61,8 +61,6 @@ public class Response extends Message {
      */
     public static final byte SERVER_THREADPOOL_EXHAUSTED_ERROR = 100;
 
-    private String errorMsg;
-
     public Response() {
         status = OK;
     }
@@ -76,14 +74,6 @@ public class Response extends Message {
         super(id);
         this.version = version;
         status = OK;
-    }
-
-    public String getErrorMsg() {
-        return errorMsg;
-    }
-
-    public void setErrorMsg(String errorMsg) {
-        this.errorMsg = errorMsg;
     }
 
     @Override

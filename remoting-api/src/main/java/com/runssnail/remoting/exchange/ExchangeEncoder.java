@@ -1,11 +1,13 @@
 package com.runssnail.remoting.exchange;
 
-import com.caucho.hessian.io.Hessian2Output;
 import com.runssnail.remoting.Channel;
 import com.runssnail.remoting.Encoder;
 import com.runssnail.remoting.buffer.ChannelBuffer;
 import com.runssnail.remoting.buffer.ChannelBufferOutputStream;
 import com.runssnail.remoting.common.io.Bytes;
+import com.runssnail.remoting.common.serialize.ObjectOutput;
+import com.runssnail.remoting.common.serialize.Serialization;
+import com.runssnail.remoting.common.serialize.support.hessian.Hessian2Serialization;
 import com.runssnail.remoting.exchange.util.CodecUtils;
 
 import java.io.IOException;
@@ -23,8 +25,17 @@ import java.nio.ByteBuffer;
  */
 public class ExchangeEncoder implements Encoder {
 
-    public ExchangeEncoder() {
+    private Serialization serialization;
 
+    public ExchangeEncoder() {
+        this(new Hessian2Serialization());
+    }
+
+    public ExchangeEncoder(Serialization serialization) {
+        if (serialization == null) {
+            throw new IllegalArgumentException("Serialization is required");
+        }
+        this.serialization = serialization;
     }
 
     @Override
@@ -42,11 +53,10 @@ public class ExchangeEncoder implements Encoder {
             out.writerIndex(savedWriterIndex + HeaderConstants.LENGTH_BYTES + header.length);
 
             ChannelBufferOutputStream outputStream = new ChannelBufferOutputStream(out);
-            Hessian2Output output = new Hessian2Output(outputStream);
+
+            ObjectOutput output = this.serialization.serialize(outputStream);
 
             output.writeObject(message.getData());
-
-            output.flush();
 
             bodyLen = outputStream.writtenBytes();
             out.writerIndex(savedWriterIndex);
@@ -78,10 +88,11 @@ public class ExchangeEncoder implements Encoder {
 
         ByteBuffer headerBuf = ByteBuffer.allocate(headerLen);
 
-        //headerBuf.putInt(headerLen);
         headerBuf.putShort(message.getVersion());
         headerBuf.putInt(message.getId());
         headerBuf.put(message.getStatus());
+
+        message.setSerializationId(this.serialization.getTypeId());
 
         headerBuf.put(message.getFlag());
         headerBuf.putShort(remarkLen);
