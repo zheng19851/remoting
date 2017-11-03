@@ -88,7 +88,14 @@ public class DefaultExchangeChannel implements ExchangeChannel {
 
     @Override
     public void send(Object message) throws RemotingException {
-        this.channel.send(message);
+        if (message instanceof Request) {
+            channel.send(message);
+        } else {
+            Request request = new Request();
+            request.setTwoWay(false);
+            request.setData(message);
+            channel.send(request);
+        }
     }
 
     @Override
@@ -98,10 +105,16 @@ public class DefaultExchangeChannel implements ExchangeChannel {
 
     @Override
     public ResponseFuture request(Object request, int timeout) throws RemotingException {
-        Request req = new Request();
-        req.setVersion(HeaderConstants.VERSION);
-        req.setTwoWay(true);
-        req.setData(request);
+
+        Request req;
+        if (request instanceof Request) {
+            req = (Request) request;
+        } else {
+            req = new Request();
+            req.setTwoWay(true);
+            req.setData(request);
+        }
+
         DefaultFuture future = new DefaultFuture(channel, req, timeout);
         try {
             channel.send(req);

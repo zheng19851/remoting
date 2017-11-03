@@ -21,11 +21,12 @@ public class Request extends Message {
     private boolean broken = false;
 
     public Request() {
-        this(newId());
+        this(newId(), HeaderConstants.VERSION);
     }
 
-    public Request(int id) {
+    public Request(int id, short version) {
          super(id);
+         this.version = version;
          this.setRequest(true);
     }
 
