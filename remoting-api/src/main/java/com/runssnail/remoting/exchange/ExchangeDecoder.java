@@ -46,26 +46,22 @@ public class ExchangeDecoder implements Decoder {
             remark = new String(remarkBytes, HeaderConstants.CHARSET_UTF8);
         }
 
-        Message message;
-        if (isRequest(flag)) {
-            message = new Request(id);
-        } else {
-            message = new Response(id);
-        }
+        int headerLen = CodecUtils.calcHeaderLen(remarkLen);
+        int bodyLen = length - headerLen;
+
+        Message message = resolveMessage(flag, bodyLen);
         message.setFlag(flag);
         message.setStatus(status);
         message.setId(id);
         message.setVersion(version);
         message.setRemark(remark);
 
-        int headerLen = CodecUtils.calcHeaderLen(remarkLen);
-        int bodyLen = length - headerLen;
         if (bodyLen > 0) {
             try {
                 ChannelBuffer body = buf.readBytes(bodyLen);
                 InputStream is = new ChannelBufferInputStream(body);
 
-                Serialization serialization = SerializationFactory.getSerialization(message.getSerializationId());
+                Serialization serialization = SerializationFactory.getSerialization(getSerializationId(flag));
 
                 ObjectInput objectInput = serialization.deserialize(is);
                 Object msg = objectInput.readObject();
@@ -80,15 +76,38 @@ public class ExchangeDecoder implements Decoder {
 
     }
 
-    private boolean isTwoWay(byte flag) {
-        return (flag & HeaderConstants.FLAG_TWOWAY) != 0;
+    private Message resolveMessage(byte flag, int bodyLen) {
+        Message message = null;
+        if (isRequest(flag)) {
+            if (CodecUtils.isEvent(flag) && bodyLen == 0) {
+                // 是心跳pong
+                message = new Ping();
+            } else if (isRequest(flag)) {
+                message = new Request();
+            }
+        } else if (CodecUtils.isEvent(flag)) {
+            message = new Event();
+        } else {
+            if (CodecUtils.isEvent(flag) && bodyLen == 0) {
+                message = new Pong();
+            } else {
+                message = new Response();
+            }
+
+        }
+
+        if (message == null) {
+            message = new Message();
+        }
+
+        return message;
     }
 
-    private boolean isEvent(byte flag) {
-        return (flag & HeaderConstants.FLAG_EVENT) != 0;
+    public byte getSerializationId(byte flag) {
+        return CodecUtils.getSerializationId(flag);
     }
 
     private boolean isRequest(byte flag) {
-        return (flag & HeaderConstants.FLAG_REQUEST) != 0;
+        return CodecUtils.isRequest(flag);
     }
 }

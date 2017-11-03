@@ -1,6 +1,8 @@
 package com.runssnail.remoting.exchange;
 
 
+import com.runssnail.remoting.exchange.util.CodecUtils;
+
 import java.io.Serializable;
 
 /**
@@ -112,15 +114,15 @@ public class Message implements Serializable {
     }
 
     public boolean isTwoWay() {
-        return (flag & HeaderConstants.FLAG_TWOWAY) != 0;
+        return CodecUtils.isTwoWay(this.flag);
     }
 
     public boolean isEvent() {
-        return (flag & HeaderConstants.FLAG_EVENT) != 0;
+        return CodecUtils.isEvent(this.flag);
     }
 
     public boolean isRequest() {
-        return (flag & HeaderConstants.FLAG_REQUEST) != 0;
+        return CodecUtils.isRequest(this.flag);
     }
 
     public boolean isResponse() {
