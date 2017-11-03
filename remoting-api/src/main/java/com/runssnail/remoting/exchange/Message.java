@@ -160,4 +160,17 @@ public class Message implements Serializable {
     public byte getSerializationId() {
         return (byte) (this.flag & HeaderConstants.SERIALIZATION_MASK);
     }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "version=" + version +
+                ", id=" + id +
+                ", status=" + status +
+                ", flag=" + flag +
+                ", remark='" + remark + '\'' +
+                ", data=" + data +
+                ", errorMsg='" + errorMsg + '\'' +
+                '}';
+    }
 }

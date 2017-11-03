@@ -80,12 +80,12 @@ public class ExchangeDecoder implements Decoder {
         Message message = null;
         if (isRequest(flag)) {
             if (CodecUtils.isEvent(flag) && bodyLen == 0) {
-                // 是心跳pong
+                // 是心跳ping
                 message = new Ping();
             } else if (isRequest(flag)) {
                 message = new Request();
             }
-        } else if (CodecUtils.isEvent(flag)) {
+        } else if (CodecUtils.isEvent(flag) && bodyLen > 0) {
             message = new Event();
         } else {
             if (CodecUtils.isEvent(flag) && bodyLen == 0) {
