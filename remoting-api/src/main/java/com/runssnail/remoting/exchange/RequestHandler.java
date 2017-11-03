@@ -7,5 +7,5 @@ package com.runssnail.remoting.exchange;
  */
 public interface RequestHandler<T> {
 
-    Object handle(ExchangeChannel channel, T t) throws Exception;
+    Object handle(T t) throws Exception;
 }

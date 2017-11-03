@@ -78,7 +78,7 @@ public class DefaultExchangeHandler implements ChannelHandler {
         try {
             // handle data.
             RequestHandler handler = this.requestHandlerResolver.resolve(req);
-            Object result = handler.handle(channel, req.getData());
+            Object result = handler.handle(req.getData());
             res.setStatus(Response.OK);
             res.setData(result);
         } catch (Throwable e) {

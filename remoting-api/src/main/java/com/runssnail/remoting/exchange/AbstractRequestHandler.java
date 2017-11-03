@@ -11,7 +11,7 @@ public abstract class AbstractRequestHandler<T> implements RequestHandler<T> {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public Object handle(ExchangeChannel channel, T msg) throws Exception {
+    public Object handle(T msg) throws Exception {
         return doHandle(msg);
     }
 

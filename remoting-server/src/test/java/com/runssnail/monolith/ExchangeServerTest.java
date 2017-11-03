@@ -73,7 +73,7 @@ public class ExchangeServerTest {
 
         final RequestHandler requestHandler = new RequestHandler() {
             @Override
-            public Object handle(ExchangeChannel channel, Object o) throws Exception {
+            public Object handle(Object o) throws Exception {
 
                 return "hello boy";
             }
