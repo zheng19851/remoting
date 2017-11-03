@@ -6,6 +6,7 @@ import com.runssnail.remoting.Encoder;
 import com.runssnail.remoting.buffer.ChannelBuffer;
 import com.runssnail.remoting.buffer.ChannelBufferOutputStream;
 import com.runssnail.remoting.common.io.Bytes;
+import com.runssnail.remoting.exchange.util.CodecUtils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -15,12 +16,16 @@ import java.nio.ByteBuffer;
  *
  * length(4个字节) 表示header+body的字节数
  *
- * header=header长度(4个字节) + version(2个字节) + requestId(4个字节) + 状态(1个字节) + 请求标记(1个字节) + remark长度(4个字节) + remark数据
+ * header=version(2个字节) + requestId(4个字节) + 状态(1个字节) + 请求标记(1个字节) + remark长度(2个字节) + remark数据
  *
  *
  * Created by zhengwei on 2017/10/30.
  */
 public class ExchangeEncoder implements Encoder {
+
+    public ExchangeEncoder() {
+
+    }
 
     @Override
     public void encode(Channel channel, ChannelBuffer out, Object msg) throws IOException {
@@ -63,32 +68,23 @@ public class ExchangeEncoder implements Encoder {
     private byte[] encodeHeader(Message message) {
 
         byte[] remarkBytes = null;
-        int remarkLen = 0;
+        short remarkLen = 0;
         if (message.getRemark() != null && message.getRemark().length() > 0) {
             remarkBytes = message.getRemark().getBytes(HeaderConstants.CHARSET_UTF8);
-            remarkLen = remarkBytes.length;
+            remarkLen = (short) remarkBytes.length;
         }
 
-        int headerLen = 4 + 2 + 4 + 1 + 1 + 4 + remarkLen;
+        int headerLen = CodecUtils.calcHeaderLen(remarkLen);
 
         ByteBuffer headerBuf = ByteBuffer.allocate(headerLen);
 
-        headerBuf.putInt(headerLen);
+        //headerBuf.putInt(headerLen);
         headerBuf.putShort(message.getVersion());
         headerBuf.putInt(message.getId());
         headerBuf.put(message.getStatus());
 
-        byte flag = 0;
-        if (message.isRequest()) {
-            // set request and serialization flag.
-            flag = HeaderConstants.FLAG_REQUEST;
-        }
-
-        if (message.isEvent()) flag |= HeaderConstants.FLAG_EVENT;
-        if (message.isTwoWay()) flag |= HeaderConstants.FLAG_TWOWAY;
-
-        headerBuf.put(flag);
-        headerBuf.putInt(remarkLen);
+        headerBuf.put(message.getFlag());
+        headerBuf.putShort(remarkLen);
         if (remarkLen > 0) {
             headerBuf.put(remarkBytes);
         }

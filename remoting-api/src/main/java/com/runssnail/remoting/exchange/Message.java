@@ -6,22 +6,30 @@ import java.io.Serializable;
 /**
  * Created by zhengwei on 2017/10/30.
  */
-public abstract class Message implements Serializable {
+public class Message implements Serializable {
     private static final long serialVersionUID = -5593151657254013949L;
 
     public static final String HEARTBEAT_EVENT = null;
 
-
     /**
      * 版本号
      */
-    protected short version;
-
+    protected short version = HeaderConstants.VERSION;
 
     /**
      * 数据ID
      */
     protected int id;
+
+    /**
+     * 状态
+     */
+    protected byte status;
+
+    /**
+     * 请求标记
+     */
+    protected byte flag;
 
     /**
      * 备注
@@ -33,28 +41,12 @@ public abstract class Message implements Serializable {
      */
     protected Object data;
 
-    /**
-     * 是否时间
-     */
-    protected boolean event = false;
 
     public Message() {
     }
 
     public Message(int id) {
         this.id = id;
-    }
-
-    public abstract boolean isRequest();
-
-    public abstract boolean isTwoWay();
-
-    public boolean isEvent() {
-        return this.event;
-    }
-
-    public void setEvent(boolean event) {
-        this.event = event;
     }
 
     public boolean isHeartbeat() {
@@ -93,5 +85,61 @@ public abstract class Message implements Serializable {
         this.remark = remark;
     }
 
-    public abstract byte getStatus();
+    public byte getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(byte status) {
+        this.status = status;
+    }
+
+    public byte getFlag() {
+        return flag;
+    }
+
+    public void setFlag(byte flag) {
+        this.flag = flag;
+    }
+
+    public boolean isTwoWay() {
+        return (flag & HeaderConstants.FLAG_TWOWAY) != 0;
+    }
+
+    public boolean isEvent() {
+        return (flag & HeaderConstants.FLAG_EVENT) != 0;
+    }
+
+    public boolean isRequest() {
+        return (flag & HeaderConstants.FLAG_REQUEST) != 0;
+    }
+
+    public boolean isResponse() {
+        return !isRequest();
+    }
+
+    public boolean isOneWay() {
+        return !isTwoWay();
+    }
+
+    public void setRequest(boolean request) {
+        setFlagValue(HeaderConstants.FLAG_REQUEST, request);
+    }
+
+    public void setTwoWay(boolean twoWay) {
+        setFlagValue(HeaderConstants.FLAG_TWOWAY, twoWay);
+    }
+
+    public void setEvent(boolean event) {
+        setFlagValue(HeaderConstants.FLAG_EVENT, event);
+    }
+
+    private void setFlagValue(byte flagValue, boolean enable) {
+        if (enable) {
+            this.flag |= flagValue;
+        } else {
+            this.flag &= ~flagValue;
+        }
+    }
+
+
 }

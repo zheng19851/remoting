@@ -18,16 +18,15 @@ public class Request extends Message {
 
     public static final String READONLY_EVENT = "R";
 
-    private boolean twoWay = true;
-
     private boolean broken = false;
 
     public Request() {
-        super(newId());
+        this(newId());
     }
 
     public Request(int id) {
          super(id);
+         this.setRequest(true);
     }
 
     private static int newId() {
@@ -47,24 +46,6 @@ public class Request extends Message {
         return dataStr;
     }
 
-    @Override
-    public boolean isRequest() {
-        return true;
-    }
-
-    public boolean isTwoWay() {
-        return twoWay;
-    }
-
-    public void setTwoWay(boolean twoWay) {
-        this.twoWay = twoWay;
-    }
-
-    @Override
-    public byte getStatus() {
-        return 0;
-    }
-
     public boolean isBroken() {
         return broken;
     }
@@ -78,11 +59,11 @@ public class Request extends Message {
         return "Request{" +
                 "version=" + version +
                 ", id=" + id +
-                ", twoWay=" + twoWay +
-                ", remark='" + remark + '\'' +
+                ", status=" + status +
                 ", broken=" + broken +
+                ", flag=" + flag +
+                ", remark='" + remark + '\'' +
                 ", data=" + data +
-                ", event=" + event +
                 '}';
     }
 }

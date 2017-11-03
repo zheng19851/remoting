@@ -61,38 +61,21 @@ public class Response extends Message {
      */
     public static final byte SERVER_THREADPOOL_EXHAUSTED_ERROR = 100;
 
-    private byte status = OK;
-
     private String errorMsg;
 
     public Response() {
+        status = OK;
     }
 
     public Response(int id) {
         super(id);
+        status = OK;
     }
 
     public Response(int id, short version) {
         super(id);
         this.version = version;
-    }
-
-    public byte getStatus() {
-        return this.status;
-    }
-
-    public void setStatus(byte status) {
-        this.status = status;
-    }
-
-    @Override
-    public boolean isRequest() {
-        return false;
-    }
-
-    @Override
-    public boolean isTwoWay() {
-        return false;
+        status = OK;
     }
 
     public String getErrorMsg() {
@@ -108,10 +91,10 @@ public class Response extends Message {
         return "Response{" +
                 "version=" + version +
                 ", id=" + id +
+                ", status=" + status +
+                ", flag=" + flag +
                 ", remark='" + remark + '\'' +
                 ", data=" + data +
-                ", event=" + event +
-                ", status=" + status +
                 ", errorMsg='" + errorMsg + '\'' +
                 '}';
     }

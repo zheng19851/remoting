@@ -72,6 +72,7 @@ public class DefaultExchangeHandler implements ChannelHandler {
 
             return res;
         }
+
         // find handler by message class.
         // Object msg = req.getData();
         try {
@@ -140,6 +141,7 @@ public class DefaultExchangeHandler implements ChannelHandler {
 
     public void received(Channel channel, Object message) throws RemotingException {
 //        channel.setAttribute(KEY_READ_TIMESTAMP, System.currentTimeMillis());
+
         ExchangeChannel exchangeChannel = DefaultExchangeChannel.getOrAddChannel(channel);
         try {
             if (message instanceof Request) {
@@ -159,7 +161,7 @@ public class DefaultExchangeHandler implements ChannelHandler {
                 handleResponse(channel, (Response) message);
             } else if (message instanceof String) {
                 if (isClientSide(channel)) {
-                    Exception e = new Exception("Dubbo client can not supported string message: " + message + " in channel: " + channel + ", url: " + channel.getUrl());
+                    Exception e = new Exception("client can not supported string message: " + message + " in channel: " + channel + ", url: " + channel.getUrl());
                     logger.error(e.getMessage(), e);
                 } else {
 //                    String echo = handler.telnet(channel, (String) message);

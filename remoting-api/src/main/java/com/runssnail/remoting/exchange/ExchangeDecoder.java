@@ -6,6 +6,7 @@ import com.runssnail.remoting.Decoder;
 import com.runssnail.remoting.buffer.ChannelBuffer;
 import com.runssnail.remoting.buffer.ChannelBufferInputStream;
 import com.runssnail.remoting.buffer.ChannelBufferUtils;
+import com.runssnail.remoting.exchange.util.CodecUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +23,7 @@ public class ExchangeDecoder implements Decoder {
 
         int length = ChannelBufferUtils.readInt(buf);
 
-        int headerLen = ChannelBufferUtils.readInt(buf);
+//        int headerLen = ChannelBufferUtils.readInt(buf);
 
         short version = ChannelBufferUtils.readShort(buf);
 
@@ -32,7 +33,7 @@ public class ExchangeDecoder implements Decoder {
 
         byte flag = buf.readByte();
 
-        int remarkLen = ChannelBufferUtils.readInt(buf);
+        short remarkLen = ChannelBufferUtils.readShort(buf);
 
         String remark = null;
         if (remarkLen > 0) {
@@ -41,30 +42,19 @@ public class ExchangeDecoder implements Decoder {
             remark = new String(remarkBytes, HeaderConstants.CHARSET_UTF8);
         }
 
-
         Message message;
         if (isRequest(flag)) {
-            Request req = new Request();
-
-            if (isTwoWay(flag)) {
-                req.setTwoWay(true);
-            }
-            message = req;
+            message = new Request(id);
         } else {
-            Response response = new Response();
-            response.setStatus(status);
-
-            message = response;
+            message = new Response(id);
         }
-
-        if (isEvent(flag)) {
-            message.setEvent(true);
-        }
-
+        message.setFlag(flag);
+        message.setStatus(status);
         message.setId(id);
         message.setVersion(version);
         message.setRemark(remark);
 
+        int headerLen = CodecUtils.calcHeaderLen(remarkLen);
         int bodyLen = length - headerLen;
         if (bodyLen > 0) {
             ChannelBuffer body = buf.readBytes(bodyLen);
