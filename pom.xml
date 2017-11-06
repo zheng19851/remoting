@@ -20,6 +20,7 @@
         <module>remoting-api</module>
         <module>remoting-client</module>
         <module>remoting-server</module>
+        <module>remoting-examples</module>
     </modules>
 
     <dependencyManagement>

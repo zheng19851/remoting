@@ -1,4 +1,4 @@
-package com.runssnail.monolith;
+package com.runssnail.examples.server;
 
 import com.runssnail.remoting.Channel;
 import com.runssnail.remoting.ChannelHandler;

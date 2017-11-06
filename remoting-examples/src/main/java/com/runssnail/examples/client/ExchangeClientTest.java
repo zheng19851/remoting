@@ -1,16 +1,16 @@
-package com.runssnail.monolith;
+package com.runssnail.examples.client;
 
 
+import com.runssnail.examples.request.CreateRequest;
 import com.runssnail.remoting.ChannelHandler;
 import com.runssnail.remoting.URL;
 import com.runssnail.remoting.common.Constants;
 import com.runssnail.remoting.exchange.ExchangeClient;
 import com.runssnail.remoting.exchange.ExchangerClients;
-import com.runssnail.remoting.exchange.HeaderConstants;
-import com.runssnail.remoting.exchange.Ping;
 import com.runssnail.remoting.exchange.Request;
 import com.runssnail.remoting.exchange.RequestHandler;
 import com.runssnail.remoting.exchange.RequestHandlerResolver;
+import com.runssnail.remoting.exchange.ResponseFuture;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,20 +71,32 @@ public class ExchangeClientTest {
                 return null;
             }
         });
+
         client.init();
 
+//        Thread.sleep(1000L);
+
+
+        CreateRequest createRequest = new CreateRequest("lisi", 20);
 
         Request request = new Request();
-        request.setVersion(HeaderConstants.VERSION);
-        request.setData("hello world");
-        client.send(request);
+        request.setData(createRequest);
+        ResponseFuture future = client.request(request);
 
-        request = new Ping();
-        request.setVersion(HeaderConstants.VERSION);
-        client.send(request);
+        Object response = future.get();
+
+        System.out.println(response);
+
+//        request = new Ping();
+//        request.setVersion(HeaderConstants.VERSION);
+//        client.send(request);
+
+//        Request event = new Event();
+//        request.setData(createRequest);
+//
+//        client.request(event);
 
 
-        Thread.sleep(1000L);
 
         System.out.println("ok");
 
