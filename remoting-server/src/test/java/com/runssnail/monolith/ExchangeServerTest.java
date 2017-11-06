@@ -1,11 +1,9 @@
 package com.runssnail.monolith;
 
 import com.runssnail.remoting.Channel;
-import com.runssnail.remoting.RemotingException;
+import com.runssnail.remoting.ChannelHandler;
 import com.runssnail.remoting.URL;
 import com.runssnail.remoting.common.Constants;
-import com.runssnail.remoting.exchange.ExchangeChannel;
-import com.runssnail.remoting.exchange.ExchangeHandler;
 import com.runssnail.remoting.exchange.ExchangeServer;
 import com.runssnail.remoting.exchange.ExchangeServers;
 import com.runssnail.remoting.exchange.Request;
@@ -28,13 +26,7 @@ public class ExchangeServerTest {
 
         URL url = new URL("netty", "localhost", 10002, map);
 
-        ExchangeHandler handler = new ExchangeHandler() {
-            @Override
-            public Object reply(ExchangeChannel channel, Object request) throws RemotingException {
-
-                System.out.println("in reply");
-                return null;
-            }
+        ChannelHandler handler = new ChannelHandler() {
 
             @Override
             public void connected(Channel channel) {

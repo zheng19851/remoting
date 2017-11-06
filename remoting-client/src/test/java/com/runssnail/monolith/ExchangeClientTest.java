@@ -1,12 +1,10 @@
 package com.runssnail.monolith;
 
 
-import com.runssnail.remoting.RemotingException;
+import com.runssnail.remoting.ChannelHandler;
 import com.runssnail.remoting.URL;
 import com.runssnail.remoting.common.Constants;
-import com.runssnail.remoting.exchange.ExchangeChannel;
 import com.runssnail.remoting.exchange.ExchangeClient;
-import com.runssnail.remoting.exchange.ExchangeHandler;
 import com.runssnail.remoting.exchange.ExchangerClients;
 import com.runssnail.remoting.exchange.HeaderConstants;
 import com.runssnail.remoting.exchange.Ping;
@@ -28,11 +26,8 @@ public class ExchangeClientTest {
         map.put(Constants.CLIENT_ALL_IDLE_TIME_KEY, "5000"); // 读写空闲时间
         URL url = new URL("netty://", "127.0.0.1", 10002, map);
 
-        ExchangeHandler handler = new ExchangeHandler() {
-            @Override
-            public Object reply(ExchangeChannel channel, Object request) throws RemotingException {
-                return null;
-            }
+        ChannelHandler handler = new ChannelHandler() {
+
 
             @Override
             public void connected(com.runssnail.remoting.Channel channel) {

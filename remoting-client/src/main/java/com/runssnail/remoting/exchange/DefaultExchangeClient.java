@@ -111,11 +111,6 @@ public class DefaultExchangeClient implements ExchangeClient {
     }
 
     @Override
-    public ExchangeHandler getExchangeHandler() {
-        return this.channel.getExchangeHandler();
-    }
-
-    @Override
     public void close(int timeout) throws Exception {
         this.channel.close();
     }

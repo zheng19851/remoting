@@ -126,11 +126,6 @@ public class DefaultExchangeChannel implements ExchangeChannel {
     }
 
     @Override
-    public ExchangeHandler getExchangeHandler() {
-        return (ExchangeHandler) this.channel.getChannelHandler();
-    }
-
-    @Override
     public void close(int timeout) throws Exception {
         this.channel.close();
     }
