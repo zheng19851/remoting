@@ -31,7 +31,7 @@ public class DefaultFuture implements ResponseFuture {
     private static final Map<Integer, DefaultFuture> FUTURES = new ConcurrentHashMap<Integer, DefaultFuture>();
 
     static {
-        Thread th = new Thread(new RemotingInvocationTimeoutScan(), "DubboResponseTimeoutScanTimer");
+        Thread th = new Thread(new RemotingInvocationTimeoutScan(), "ResponseTimeoutScanTimer");
         th.setDaemon(true);
         th.start();
     }
@@ -168,7 +168,7 @@ public class DefaultFuture implements ResponseFuture {
             try {
                 callbackCopy.done(res.getData());
             } catch (Exception e) {
-                logger.error("callback invoke error .reasult:" + res.getData() + ",url:" + channel.getUrl(), e);
+                logger.error("callback invoke error .result:" + res.getData() + ",url:" + channel.getUrl(), e);
             }
         } else if (res.getStatus() == Response.CLIENT_TIMEOUT || res.getStatus() == Response.SERVER_TIMEOUT) {
             try {
