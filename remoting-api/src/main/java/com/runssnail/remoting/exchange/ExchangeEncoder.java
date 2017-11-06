@@ -58,6 +58,8 @@ public class ExchangeEncoder implements Encoder {
 
             output.writeObject(message.getData());
 
+            output.flushBuffer();
+
             bodyLen = outputStream.writtenBytes();
             out.writerIndex(savedWriterIndex);
         }
