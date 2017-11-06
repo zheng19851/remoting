@@ -90,6 +90,7 @@ public class NettyClient extends AbstractClient {
 
                     int allIdleTime = getUrl().getPositiveParameter(Constants.CLIENT_ALL_IDLE_TIME_KEY, Constants.DEFAULT_CLIENT_ALL_IDLE_TIME);
                     ch.pipeline()
+//                            .addLast(new LoggingHandler(LogLevel.INFO))
                             .addLast(new IdleStateHandler(0, 0, allIdleTime, TimeUnit.MILLISECONDS))
                             .addLast(new HeartbeatTriggerHandler())
                             .addLast(new ReconnectHandler(NettyClient.this));
